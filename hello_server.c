@@ -48,17 +48,41 @@ int main() {
     // Configure local address
     printf("Configuring local address...\n");
     struct addrinfo hints;
-    memset();
-    hints.ai_family;
-    hints.ai_socktype;
-    hints.ai_flags;
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags = AI_PASSIVE;
+
+    struct addrinfo *bind_address;
+    getaddrinfo(0, 8082, &hints, &bind_address);
 
     // Create socket
+    printf("Creating socket...\n");
+    SOCKET socket_listen;
+    socket_listen = socket(bind_address->ai_family,
+            bind_address->ai_socktype, bind_address->ai_protocol);
+    if (!ISVALIDSOCKET(socket_listen)) {
+        fprintf(stderr, "socket() failed. (%d)\n", GETSOCKETERRNO());
+        return 1;
+    }
 
     // Bind socket to local address
-
+    printf("Binding socket to local address...\n");
+    if (bind(socket_listen, 
+            bind_address->ai_addr, bind_address->ai_addrlen)) {
+        fprintf(stderr, "bind() failed. (%)\n", GETSOCKETERRNO());
+        return 1;
+    }
+    freeaddrinfo(bind_address);
+    
     // listen for a connection
+    printf("Listening...\n");
+    if (listen(socket_listen, 8) < 0) {
+        fprintf(stderr, "listen() failed. (%)\n", GETSOCKETERRNO());
+        return 1;
+    }
 
+    // Initialize 
     // wait for connection
 
     // Read Request
